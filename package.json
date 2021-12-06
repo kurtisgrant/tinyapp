@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/kurtisgrant/tinyapp/issues"
   },
-  "homepage": "https://github.com/kurtisgrant/tinyapp#readme"
+  "homepage": "https://github.com/kurtisgrant/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
