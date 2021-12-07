@@ -71,6 +71,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username)
+    .redirect('/urls/');
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
