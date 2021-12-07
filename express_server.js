@@ -97,7 +97,17 @@ app.post("/urls", (req, res) => {
 // Login endpoint
 app.post("/login", (req, res) => {
   const username = req.body.username;
-  res.cookie('username', username)
+  if (username.length) {
+    res.cookie('username', username)
+      .redirect('/urls/');
+  } else {
+    res.redirect('/urls/');
+  }
+});
+
+// Logout endpoint
+app.post("/logout", (req, res) => {
+  res.clearCookie('username')
     .redirect('/urls/');
 });
 

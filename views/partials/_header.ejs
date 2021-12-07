@@ -21,7 +21,9 @@
               <%= username %>
             </i>
           </span>
-          <button class="btn btn-outline-light ml-2">Logout</button>
+          <form action="/logout" method="post">
+            <button type="submit" class="btn btn-outline-light ml-2">Logout</button>
+          </form>
           <% } %>
     </div>
   </nav>
