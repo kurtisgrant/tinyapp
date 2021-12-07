@@ -22,15 +22,16 @@
             <%= shortURL %>
           </a></p>
       </div>
-      <div class="card-footer text-muted"></div>
-      <h2 class="mt-3 font-weight-light">Edit Long URL</h2>
-      <form class="form-inline m-2" action="/urls/<%= shortURL %>" method="post">
-        <div class="form-group mx-auto">
-          <label class="m-2" for="longURL">New URL: </label>
-          <input class="form-control m-2" type="text" name="longURL" id="">
-          <button class="btn btn-outline-primary m-2" type="submit">Update</button>
-        </div>
-      </form>
+      <div class="card-footer text-muted">
+        <h2 class="mt-3 font-weight-light">Edit Long URL</h2>
+        <form class="form-inline m-2" action="/urls/<%= shortURL %>" method="post">
+          <div class="form-group mx-auto">
+            <label class="m-2" for="longURL">New URL: </label>
+            <input class="form-control m-2" type="text" name="longURL" placeholder="http://">
+            <button class="btn btn-primary m-2" type="submit">Update</button>
+          </div>
+        </form>
+      </div>
     </div>
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
