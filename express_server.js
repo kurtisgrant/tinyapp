@@ -28,6 +28,18 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURLToDelete = req.params.shortURL;
+  const longURLToDelete = urlDatabase[shortURLToDelete];
+  if (longURLToDelete) {
+    delete urlDatabase[shortURLToDelete];
+    res.redirect('/urls');
+  } else {
+    res.statusCode = 500;
+    res.send('500 Server error');
+  }
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show.ejs", templateVars);
