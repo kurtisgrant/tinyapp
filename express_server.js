@@ -11,23 +11,53 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+// -----------------------------
+// GET Request Handlers
+// -----------------------------
+
+// Add URL form page
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+// View/edit single URL page
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.render("urls_show.ejs", templateVars);
 });
 
+// View all URLs page
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+// Redirect endpoint
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  if (longURL) {
+    res.redirect(longURL);
+  } else {
+    res.statusCode = 404;
+    res.send('404 Invalid short URL');
+  }
 });
 
+// View all URL database JSON data
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// Home directory (redirects to URLs page
+app.get("/", (req, res) => {
+  res.redirect("/urls");
+});
+
+// -----------------------------
+// POST Request Handlers
+// -----------------------------
+
+// Delete url from database endpont (would be a DELETE req)
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURLToDelete = req.params.shortURL;
   const longURLToDelete = urlDatabase[shortURLToDelete];
@@ -40,37 +70,21 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render("urls_show.ejs", templateVars);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  if (longURL) {
-    res.redirect(longURL);
-  } else {
-    res.statusCode = 404;
-    res.send('404 Invalid short URL');
-  }
-});
-
+// Edit long URL for existing short URL endpoint (would be PUT req)
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
+// Add new URL endpoint
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
   res.redirect(`/urls/${newShortURL}`);
 });
 
+// Login endpoint
 app.post("/login", (req, res) => {
   const username = req.body.username;
   res.cookie('username', username)
@@ -78,7 +92,7 @@ app.post("/login", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
 function generateRandomString() {
