@@ -149,10 +149,10 @@ app.post("/login", (req, res) => {
   const foundUser = findUserByEmail(email);
   if (!email.length || !password.length) {
     templateVars.alert = { type: "danger", message: "Email and password are required" };
-    res.render('login', templateVars);
+    res.status(403).render('login', templateVars);
   } else if (!foundUser || foundUser.password !== password) {
     templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
-    res.render('login', templateVars);
+    res.status(403).render('login', templateVars);
   } else {
     res.cookie('user_id', foundUser.id);
     res.redirect('/urls');
