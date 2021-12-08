@@ -118,9 +118,9 @@ app.post("/login", (req, res) => {
   const username = req.body.username;
   if (username.length) {
     res.cookie('username', username)
-      .redirect('/urls/');
+      .redirect('/urls');
   } else {
-    res.redirect('/urls/');
+    res.redirect('/urls');
   }
 });
 
@@ -139,14 +139,16 @@ app.post("/register", (req, res) => {
       password: req.body.password
     };
     users[newUser.id] = newUser;
-    res.redirect('/urls/');
+    res.cookie('user_id', newUser.id);
+    console.log('users: ', users);
+    res.redirect('/urls');
   }
 });
 
 // Logout endpoint
 app.post("/logout", (req, res) => {
   res.clearCookie('username')
-    .redirect('/urls/');
+    .redirect('/urls');
 });
 
 app.listen(PORT, () => {
