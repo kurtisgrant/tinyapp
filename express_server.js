@@ -13,6 +13,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
 // -----------------------------
 // GET Request Handlers
 // -----------------------------
@@ -53,8 +66,9 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+// Registration Form
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { username: req.cookies["username"], alert: null };
   res.render('register', templateVars);
 });
 
@@ -106,6 +120,25 @@ app.post("/login", (req, res) => {
     res.cookie('username', username)
       .redirect('/urls/');
   } else {
+    res.redirect('/urls/');
+  }
+});
+
+// Register endpoint
+app.post("/register", (req, res) => {
+  if (req.body.password !== req.body.password2) {
+    const templateVars = {
+      username: req.cookies["username"],
+      alert: { type: 'danger', message: "Passwords didn't match." }
+    };
+    res.status(400).render('register', templateVars);
+  } else {
+    const newUser = {
+      id: generateRandomString(),
+      email: req.body.email,
+      password: req.body.password
+    };
+    users[newUser.id] = newUser;
     res.redirect('/urls/');
   }
 });

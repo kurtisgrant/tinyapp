@@ -23,7 +23,12 @@
           <input placeholder="Password" class="form-control my-2" type="password" name="password" id="password">
           <input placeholder="Confirm password" class="form-control my-2" type="password" name="password2"
             id="password2">
-          <button class="btn btn-info btn-block my-4" type="submit">Submit</button>
+          <% if (alert) { %>
+            <div class="alert alert-<%= alert.type %>" role="alert">
+              <%= alert.message %>
+            </div>
+            <% } %>
+              <button class="btn btn-info btn-block my-4" type="submit">Submit</button>
         </form>
       </div>
     </div>
