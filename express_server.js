@@ -9,8 +9,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: 'user2RandomID' },
+  "9sm5xK": { longURL: "http://www.google.com", userID: 'user2RandomID' },
 };
 
 const users = {
@@ -34,6 +34,9 @@ const users = {
 app.get("/urls/new", (req, res) => {
   let user = req.cookies["user_id"];
   if (user) user = users[user];
+  if (!user) {
+    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
   const templateVars = { user: user };
   res.render("urls_new", templateVars);
 });
@@ -42,9 +45,12 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let user = req.cookies["user_id"];
   if (user) user = users[user];
+  if (user.id !== urlDatabase[req.params.shortURL].userID) {
+    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: user
   };
   res.render("urls_show.ejs", templateVars);
@@ -54,8 +60,12 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/urls", (req, res) => {
   let user = req.cookies["user_id"];
   if (user) user = users[user];
+  if (!user) {
+    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
+  const userURLs = findURLsByUserID(user.id);
   const templateVars = {
-    urls: urlDatabase,
+    urls: userURLs,
     user: user
   };
   res.render("urls_index", templateVars);
@@ -63,7 +73,7 @@ app.get("/urls", (req, res) => {
 
 // Redirect endpoint
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   if (longURL) {
     res.redirect(longURL);
   } else {
@@ -94,7 +104,7 @@ app.get("/login", (req, res) => {
   res.render('login', templateVars);
 });
 
-// View all URL database JSON data
+// Forgot password
 app.get("/forgot-password", (req, res) => {
   res.status(406).end(`<h1>406 Not Acceptable</h1>`);
 });
@@ -115,8 +125,13 @@ app.get("/", (req, res) => {
 
 // Delete url from database endpont (would be a DELETE req)
 app.post("/urls/:shortURL/delete", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  if (user.id !== urlDatabase[req.params.shortURL].userID) {
+    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
   const shortURLToDelete = req.params.shortURL;
-  const longURLToDelete = urlDatabase[shortURLToDelete];
+  const longURLToDelete = urlDatabase[shortURLToDelete].longURL;
   if (longURLToDelete) {
     delete urlDatabase[shortURLToDelete];
     res.redirect('/urls');
@@ -128,15 +143,25 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Edit long URL for existing short URL endpoint (would be PUT req)
 app.post("/urls/:shortURL", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  if (user.id !== urlDatabase[req.params.shortURL].userID) {
+    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
 // Add new URL endpoint
 app.post("/urls", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  if (!user) {
+    res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  }
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = req.body.longURL;
+  urlDatabase[newShortURL] = { longURL: req.body.longURL, userID: user.id };
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -206,4 +231,14 @@ function findUserByEmail(email) {
     }
   }
   return undefined;
+}
+
+function findURLsByUserID(userID) {
+  const URLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === userID) {
+      URLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return URLs;
 }

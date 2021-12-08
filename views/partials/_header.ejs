@@ -5,24 +5,32 @@
       aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+    <% if(user){ %>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/urls">My URLs</a>
+          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        </div>
+
+        <div class="ml-auto d-inline">
+          <form class="form-inline" action="/logout" method="post">
+            <span class="my-auto mr-2 ml-auto text-light">
+              Logged in as: <i>
+                <%= user.email %>
+              </i>
+            </span>
+            <button type="submit" class="btn btn-outline-light ml-2">Logout</button>
+          </form>
+        </div>
       </div>
-    </div>
-    <% if(!user){ %>
-      <a href="/login" class="btn btn-outline-light">Login</a>
-      <a href="/register" class="btn btn-light ml-2">Register</a>
       <% } else { %>
-        <span class="my-auto mr-2 ml-auto text-light">
-          Logged in as: <i>
-            <%= user.email %>
-          </i>
-        </span>
-        <form action="/logout" method="post">
-          <button type="submit" class="btn btn-outline-light ml-2">Logout</button>
-        </form>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class='ml-auto'>
+            <a href="/login" class="btn btn-outline-light">Login</a>
+            <a href="/register" class="btn btn-light ml-2">Register</a>
+          </div>
+        </div>
         <% } %>
   </nav>
 </header>
