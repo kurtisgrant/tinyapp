@@ -10,21 +10,19 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <% if(!user){ %>
-        <form class="form-inline ml-auto" action="/login" method="post">
-          <input class="form-control mr-2" type="text" name="email" placeholder="Email">
-          <button class="btn btn-outline-light" type="submit">Login</button>
-        </form>
-        <% } else { %>
-          <span class="my-auto mr-2 ml-auto text-light">
-            Logged in as: <i>
-              <%= user.email %>
-            </i>
-          </span>
-          <form action="/logout" method="post">
-            <button type="submit" class="btn btn-outline-light ml-2">Logout</button>
-          </form>
-          <% } %>
     </div>
+    <% if(!user){ %>
+      <a href="/login" class="btn btn-outline-light">Login</a>
+      <a href="/register" class="btn btn-light ml-2">Register</a>
+      <% } else { %>
+        <span class="my-auto mr-2 ml-auto text-light">
+          Logged in as: <i>
+            <%= user.email %>
+          </i>
+        </span>
+        <form action="/logout" method="post">
+          <button type="submit" class="btn btn-outline-light ml-2">Logout</button>
+        </form>
+        <% } %>
   </nav>
 </header>
