@@ -53,6 +53,11 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["username"] };
+  res.render('register', templateVars);
+});
+
 // View all URL database JSON data
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
