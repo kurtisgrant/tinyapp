@@ -95,6 +95,11 @@ app.get("/login", (req, res) => {
 });
 
 // View all URL database JSON data
+app.get("/forgot-password", (req, res) => {
+  res.status(406).end(`<h1>406 Not Acceptable</h1>`);
+});
+
+// View all URL database JSON data
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -137,11 +142,19 @@ app.post("/urls", (req, res) => {
 
 // Login endpoint
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  if (username.length) {
-    res.cookie('username', username)
-      .redirect('/urls');
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  const templateVars = { user: user, alert: null };
+  const { email, password } = req.body;
+  const foundUser = findUserByEmail(email);
+  if (!email.length || !password.length) {
+    templateVars.alert = { type: "danger", message: "Email and password are required" };
+    res.render('login', templateVars);
+  } else if (!foundUser || foundUser.password !== password) {
+    templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
+    res.render('login', templateVars);
   } else {
+    res.cookie('user_id', foundUser.id);
     res.redirect('/urls');
   }
 });
@@ -157,7 +170,7 @@ app.post("/register", (req, res) => {
   } else if (!req.body.email.length || !req.body.password.length) {
     templateVars.alert = { type: 'danger', message: "Email and password are required" };
     res.status(400).render('register', templateVars);
-  } else if (alreadyEmail(req.body.email)) {
+  } else if (findUserByEmail(req.body.email)) {
     templateVars.alert = { type: 'danger', message: "Email already registered" };
     res.status(400).render('register', templateVars);
   } else {
@@ -175,7 +188,7 @@ app.post("/register", (req, res) => {
 // Logout endpoint
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id')
-    .redirect('/urls');
+    .redirect('/login');
 });
 
 app.listen(PORT, () => {
@@ -186,11 +199,11 @@ function generateRandomString() {
   return Math.random().toString(36).slice(2, 8);
 }
 
-function alreadyEmail(email) {
+function findUserByEmail(email) {
   for (let userId in users) {
     if (users[userId].email === email) {
-      return true;
+      return users[userId];
     }
   }
-  return false;
+  return undefined;
 }
