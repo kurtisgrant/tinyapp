@@ -140,7 +140,6 @@ app.post("/register", (req, res) => {
     };
     users[newUser.id] = newUser;
     res.cookie('user_id', newUser.id);
-    console.log('users: ', users);
     res.redirect('/urls');
   }
 });
