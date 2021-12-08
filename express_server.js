@@ -137,11 +137,17 @@ app.post("/login", (req, res) => {
 
 // Register endpoint
 app.post("/register", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  const templateVars = { user: user, alert: null };
   if (req.body.password !== req.body.password2) {
-    const templateVars = {
-      username: req.cookies["username"],
-      alert: { type: 'danger', message: "Passwords didn't match." }
-    };
+    templateVars.alert = { type: 'danger', message: "Passwords didn't match" };
+    res.status(400).render('register', templateVars);
+  } else if (!req.body.email.length || !req.body.password.length) {
+    templateVars.alert = { type: 'danger', message: "Email and password are required" };
+    res.status(400).render('register', templateVars);
+  } else if (alreadyEmail(req.body.email)) {
+    templateVars.alert = { type: 'danger', message: "Email already registered" };
     res.status(400).render('register', templateVars);
   } else {
     const newUser = {
@@ -167,4 +173,13 @@ app.listen(PORT, () => {
 
 function generateRandomString() {
   return Math.random().toString(36).slice(2, 8);
+}
+
+function alreadyEmail(email) {
+  for (let userId in users) {
+    if (users[userId].email === email) {
+      return true;
+    }
+  }
+  return false;
 }
