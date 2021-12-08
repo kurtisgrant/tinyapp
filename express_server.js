@@ -32,25 +32,31 @@ const users = {
 
 // Add URL form page
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  const templateVars = { user: user };
   res.render("urls_new", templateVars);
 });
 
 // View/edit single URL page
 app.get("/urls/:shortURL", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    user: user
   };
   res.render("urls_show.ejs", templateVars);
 });
 
 // View all URLs page
 app.get("/urls", (req, res) => {
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: user
   };
   res.render("urls_index", templateVars);
 });
@@ -68,7 +74,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Registration Form
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"], alert: null };
+  let user = req.cookies["user_id"];
+  if (user) user = users[user];
+  const templateVars = {
+    user: user,
+    alert: null
+  };
   res.render('register', templateVars);
 });
 
@@ -146,7 +157,7 @@ app.post("/register", (req, res) => {
 
 // Logout endpoint
 app.post("/logout", (req, res) => {
-  res.clearCookie('username')
+  res.clearCookie('user_id')
     .redirect('/urls');
 });
 
