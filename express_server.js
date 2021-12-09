@@ -18,12 +18,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
+    hashedPass: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 10)
+    hashedPass: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -177,7 +177,7 @@ app.post("/login", (req, res) => {
   if (!email.length || !password.length) {
     templateVars.alert = { type: "danger", message: "Email and password are required" };
     res.status(403).render('login', templateVars);
-  } else if (!foundUser || !bcrypt.compareSync(password, foundUser.password)) {
+  } else if (!foundUser || !bcrypt.compareSync(password, foundUser.hashedPass)) {
     templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
     res.status(403).render('login', templateVars);
   } else {
@@ -204,7 +204,7 @@ app.post("/register", (req, res) => {
     const newUser = {
       id: generateRandomString(),
       email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 10)
+      hashedPass: bcrypt.hashSync(req.body.password, 10)
     };
     users[newUser.id] = newUser;
     res.cookie('user_id', newUser.id);
