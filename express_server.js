@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const cookieSecret = require('./cookie-secret');
 const bcrypt = require('bcryptjs');
+const { generateRandomString, findUserByEmail, findURLsByUserID } = require('./helpers');
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -237,25 +238,3 @@ app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
-  return Math.random().toString(36).slice(2, 8);
-}
-
-function findUserByEmail(email, userDatabase) {
-  for (let userId in userDatabase) {
-    if (userDatabase[userId].email === email) {
-      return userDatabase[userId];
-    }
-  }
-  return undefined;
-}
-
-function findURLsByUserID(userID, urlDatabase) {
-  const URLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === userID) {
-      URLs[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return URLs;
-}
