@@ -4,15 +4,21 @@ const cookieSession = require('cookie-session');
 const cookieSecret = require('./cookie-secret');
 const bcrypt = require('bcryptjs');
 const { generateRandomString, findUserByEmail, findURLsByUserID } = require('./helpers');
-const app = express();
-const PORT = 8080; // default port 8080
 
+const app = express();
 app.set('view engine', 'ejs');
+const PORT = 8080;
+
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   secret: cookieSecret
 }));
+
+// -----------------------------
+// The *airquotes* "Database"
+// -----------------------------
 
 const urlDatabaseObj = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: 'user2RandomID' },
@@ -134,7 +140,8 @@ app.get("/", (req, res) => {
 // POST Request Handlers
 // -----------------------------
 
-// Delete url from database endpont (would be a DELETE req)
+// (would-be DELETE request)
+// Delete url from database endpont
 app.post("/urls/:shortURL/delete", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
@@ -154,7 +161,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-// Edit long URL for existing short URL endpoint (would be PUT req)
+// (would-be PUT request)
+// Edit long URL for existing short URL endpoint
 app.post("/urls/:shortURL", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
@@ -233,6 +241,7 @@ app.post("/logout", (req, res) => {
   req.session.userID = null;
   res.redirect('/login');
 });
+
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
