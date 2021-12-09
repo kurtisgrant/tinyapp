@@ -38,7 +38,7 @@ const userDatabaseObj = {
 
 // Add URL form page
 app.get("/urls/new", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -49,7 +49,7 @@ app.get("/urls/new", (req, res) => {
 
 // View/edit single URL page
 app.get("/urls/:shortURL", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -66,7 +66,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // View all URLs page
 app.get("/urls", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -92,7 +92,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Registration Form
 app.get("/register", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   const templateVars = {
     user: user,
@@ -103,7 +103,7 @@ app.get("/register", (req, res) => {
 
 // Login Form
 app.get("/login", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (user) {
     return res.redirect('/urls');
@@ -136,7 +136,7 @@ app.get("/", (req, res) => {
 
 // Delete url from database endpont (would be a DELETE req)
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -156,7 +156,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Edit long URL for existing short URL endpoint (would be PUT req)
 app.post("/urls/:shortURL", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -170,7 +170,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Add new URL endpoint
 app.post("/urls", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
     return res.status(401).redirect('/login');
@@ -182,7 +182,7 @@ app.post("/urls", (req, res) => {
 
 // Login endpoint
 app.post("/login", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (user) {
     return res.redirect('/urls');
@@ -197,14 +197,14 @@ app.post("/login", (req, res) => {
     templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
     res.status(403).render('login', templateVars);
   } else {
-    req.session.user_id = foundUser.id;
+    req.session.userID = foundUser.id;
     res.redirect('/urls');
   }
 });
 
 // Register endpoint
 app.post("/register", (req, res) => {
-  let user = req.session.user_id;
+  let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   const templateVars = { user: user, alert: null };
   if (req.body.password !== req.body.password2) {
@@ -223,14 +223,14 @@ app.post("/register", (req, res) => {
       hashedPass: bcrypt.hashSync(req.body.password, 10)
     };
     userDatabaseObj[newUser.id] = newUser;
-    req.session.user_id = newUser.id;
+    req.session.userID = newUser.id;
     res.redirect('/urls');
   }
 });
 
 // Logout endpoint
 app.post("/logout", (req, res) => {
-  req.session.user_id = null;
+  req.session.userID = null;
   res.redirect('/login');
 });
 
