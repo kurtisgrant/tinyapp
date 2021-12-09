@@ -40,7 +40,7 @@ app.get("/urls/new", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
   if (!user) {
-    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).redirect('/login');
   }
   const templateVars = { user: user };
   res.render("urls_new", templateVars);
@@ -50,8 +50,10 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
-  if (user.id !== urlDatabase[req.params.shortURL].userID) {
-    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+  if (!user) {
+    return res.status(401).redirect('/login');
+  } else if (user.id !== urlDatabase[req.params.shortURL].userID) {
+    return res.status(401).redirect('/login');
   }
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -66,7 +68,7 @@ app.get("/urls", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
   if (!user) {
-    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).redirect('/login');
   }
   const userURLs = findURLsByUserID(user.id);
   const templateVars = {
@@ -102,6 +104,9 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
+  if (user) {
+    return res.redirect('/urls');
+  }
   const templateVars = {
     user: user,
     alert: null
@@ -121,7 +126,7 @@ app.get("/urls.json", (req, res) => {
 
 // Home directory (redirects to URLs page
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // -----------------------------
@@ -132,7 +137,9 @@ app.get("/", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
-  if (user.id !== urlDatabase[req.params.shortURL].userID) {
+  if (!user) {
+    return res.status(401).redirect('/login');
+  } else if (user.id !== urlDatabase[req.params.shortURL].userID) {
     return res.status(401).end(`<h1>401 Unauthorised</h1>`);
   }
   const shortURLToDelete = req.params.shortURL;
@@ -150,7 +157,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
-  if (user.id !== urlDatabase[req.params.shortURL].userID) {
+  if (!user) {
+    return res.status(401).redirect('/login');
+  } else if (user.id !== urlDatabase[req.params.shortURL].userID) {
     return res.status(401).end(`<h1>401 Unauthorised</h1>`);
   }
   const shortURL = req.params.shortURL;
@@ -163,7 +172,7 @@ app.post("/urls", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
   if (!user) {
-    res.status(401).end(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).redirect('/login');
   }
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = { longURL: req.body.longURL, userID: user.id };
@@ -174,9 +183,12 @@ app.post("/urls", (req, res) => {
 app.post("/login", (req, res) => {
   let user = req.session.user_id;
   if (user) user = users[user];
-  const templateVars = { user: user, alert: null };
+  if (user) {
+    return res.redirect('/urls');
+  }
   const { email, password } = req.body;
   const foundUser = findUserByEmail(email);
+  const templateVars = { user: undefined, alert: null };
   if (!email.length || !password.length) {
     templateVars.alert = { type: "danger", message: "Email and password are required" };
     res.status(403).render('login', templateVars);
