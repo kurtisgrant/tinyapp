@@ -123,7 +123,7 @@ app.get("/login", (req, res) => {
 
 // Forgot password
 app.get("/forgot-password", (req, res) => {
-  res.status(406).end(`<h1>406 Not Acceptable</h1>`);
+  res.status(406).send(`<h1>406 Not Acceptable</h1>`);
 });
 
 // View all URL database JSON data
@@ -148,7 +148,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (!user) {
     return res.status(401).redirect('/login');
   } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
-    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).send(`<h1>401 Unauthorised</h1>`);
   }
   const shortURLToDelete = req.params.shortURL;
   const longURLToDelete = urlDatabaseObj[shortURLToDelete].longURL;
@@ -169,7 +169,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!user) {
     return res.status(401).redirect('/login');
   } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
-    return res.status(401).end(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).send(`<h1>401 Unauthorised</h1>`);
   }
   const shortURL = req.params.shortURL;
   urlDatabaseObj[shortURL].longURL = req.body.longURL;
