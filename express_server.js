@@ -63,7 +63,6 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.status(404).send(`<h1>404 Not Found</h1>`);
   } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
     return res.status(401).send('<h1>401 Not Authorised</h1>');
-  } else if (!urlDatabaseObj[req.params.shortURL]) {
   }
   const templateVars = {
     shortURL: req.params.shortURL,
