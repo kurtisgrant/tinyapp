@@ -47,9 +47,9 @@ app.get("/urls/new", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
+    return res.status(401).send('<h1>401 Not Authorised</h1>');
   }
-  const templateVars = { user: user };
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
@@ -58,9 +58,12 @@ app.get("/urls/:shortURL", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
+    return res.status(401).send('<h1>401 Not Authorised</h1>');
+  } else if (!urlDatabaseObj[req.params.shortURL]) {
+    return res.status(404).send(`<h1>404 Not Found</h1>`);
   } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
-    return res.status(401).redirect('/login');
+    return res.status(401).send('<h1>401 Not Authorised</h1>');
+  } else if (!urlDatabaseObj[req.params.shortURL]) {
   }
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -75,7 +78,7 @@ app.get("/urls", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
+    return res.status(401).send('<h1>401 Not Authorised</h1>');
   }
   const userURLs = findURLsByUserID(user.id, urlDatabaseObj);
   const templateVars = {
@@ -87,19 +90,20 @@ app.get("/urls", (req, res) => {
 
 // Redirect endpoint
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabaseObj[req.params.shortURL].longURL;
-  if (longURL) {
-    res.redirect(longURL);
-  } else {
-    res.statusCode = 404;
-    res.send('404 Invalid short URL');
+  const urlObj = urlDatabaseObj[req.params.shortURL];
+  if (!urlObj) {
+    return res.status(404).send(`<h1>404 Not Found</h1>`);
   }
+  res.redirect(urlObj.longURL);
 });
 
 // Registration Form
 app.get("/register", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
+  if (user) {
+    return res.redirect('/urls');
+  }
   const templateVars = {
     user: user,
     alert: null
@@ -143,37 +147,35 @@ app.get("/", (req, res) => {
 // (would-be DELETE request)
 // Delete url from database endpont
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
-  } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
-    return res.status(401).send(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).send(`<h1>401 Not Authorised</h1>`);
+  } else if (!urlDatabaseObj[shortURL]) {
+    return res.status(404).send(`<h1>404 Not Found</h1>`);
+  } else if (user.id !== urlDatabaseObj[shortURL].userID) {
+    return res.status(401).send(`<h1>401 Not Authorised</h1>`);
   }
-  const shortURLToDelete = req.params.shortURL;
-  const longURLToDelete = urlDatabaseObj[shortURLToDelete].longURL;
-  if (longURLToDelete) {
-    delete urlDatabaseObj[shortURLToDelete];
-    res.redirect('/urls');
-  } else {
-    res.statusCode = 500;
-    res.send('500 Server error');
-  }
+  delete urlDatabaseObj[shortURL];
+  res.redirect('/urls');
 });
 
 // (would-be PUT request)
 // Edit long URL for existing short URL endpoint
 app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
-  } else if (user.id !== urlDatabaseObj[req.params.shortURL].userID) {
-    return res.status(401).send(`<h1>401 Unauthorised</h1>`);
+    return res.status(401).send(`<h1>401 Not Authorised</h1>`);
+  } else if (!urlDatabaseObj[shortURL]) {
+    return res.status(404).send(`<h1>404 Not Found</h1>`);
+  } else if (user.id !== urlDatabaseObj[shortURL].userID) {
+    return res.status(401).send(`<h1>401 Not Authorised</h1>`);
   }
-  const shortURL = req.params.shortURL;
   urlDatabaseObj[shortURL].longURL = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  res.redirect(`/urls`);
 });
 
 // Add new URL endpoint
@@ -181,7 +183,7 @@ app.post("/urls", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).redirect('/login');
+    return res.status(401).send(`<h1>401 Not Authorised</h1>`);
   }
   const newShortURL = generateRandomString();
   urlDatabaseObj[newShortURL] = { longURL: req.body.longURL, userID: user.id };
@@ -200,14 +202,13 @@ app.post("/login", (req, res) => {
   const templateVars = { user: undefined, alert: null };
   if (!email.length || !password.length) {
     templateVars.alert = { type: "danger", message: "Email and password are required" };
-    res.status(403).render('login', templateVars);
+    return res.status(403).render('login', templateVars);
   } else if (!foundUser || !bcrypt.compareSync(password, foundUser.hashedPass)) {
     templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
-    res.status(403).render('login', templateVars);
-  } else {
-    req.session.userID = foundUser.id;
-    res.redirect('/urls');
+    return res.status(403).render('login', templateVars);
   }
+  req.session.userID = foundUser.id;
+  res.redirect('/urls');
 });
 
 // Register endpoint
@@ -217,23 +218,22 @@ app.post("/register", (req, res) => {
   const templateVars = { user: user, alert: null };
   if (req.body.password !== req.body.password2) {
     templateVars.alert = { type: 'danger', message: "Passwords didn't match" };
-    res.status(400).render('register', templateVars);
+    return res.status(400).render('register', templateVars);
   } else if (!req.body.email.length || !req.body.password.length) {
     templateVars.alert = { type: 'danger', message: "Email and password are required" };
-    res.status(400).render('register', templateVars);
+    return res.status(400).render('register', templateVars);
   } else if (findUserByEmail(req.body.email, userDatabaseObj)) {
     templateVars.alert = { type: 'danger', message: "Email already registered" };
-    res.status(400).render('register', templateVars);
-  } else {
-    const newUser = {
-      id: generateRandomString(),
-      email: req.body.email,
-      hashedPass: bcrypt.hashSync(req.body.password, 10)
-    };
-    userDatabaseObj[newUser.id] = newUser;
-    req.session.userID = newUser.id;
-    res.redirect('/urls');
+    return res.status(400).render('register', templateVars);
   }
+  const newUser = {
+    id: generateRandomString(),
+    email: req.body.email,
+    hashedPass: bcrypt.hashSync(req.body.password, 10)
+  };
+  userDatabaseObj[newUser.id] = newUser;
+  req.session.userID = newUser.id;
+  res.redirect('/urls');
 });
 
 // Logout endpoint
