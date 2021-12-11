@@ -1,7 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const cookieSecret = require('./cookie-secret');
+// const cookieSecret = require('./cookie-secret'); // Secret should be imported for security
+const cookieSecret = 'ypUdzfGTKRFJRveo8VaNsfH3xFVtlSU9WT9XLAXy';
 const bcrypt = require('bcryptjs');
 const { generateRandomString, findUserByEmail, findURLsByUserID } = require('./helpers');
 
