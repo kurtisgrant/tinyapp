@@ -48,7 +48,7 @@ app.get("/urls/new", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   if (!user) {
-    return res.status(401).send('<h1>401 Not Authorised</h1>');
+    return res.redirect('/login');
   }
   const templateVars = { user };
   res.render("urls_new", templateVars);
@@ -238,7 +238,7 @@ app.post("/register", (req, res) => {
 
 // Logout endpoint
 app.post("/logout", (req, res) => {
-  req.session.userID = null;
+  req.session = null;
   res.redirect('/login');
 });
 
