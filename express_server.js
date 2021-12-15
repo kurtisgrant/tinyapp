@@ -3,9 +3,10 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { generateRandomString, findUserByEmail, findURLsByUserID } = require('./helpers');
+const urlDatabaseObj = require('./data/urlDatabase');
+const userDatabaseObj = require('./data/userDatabase');
 
-const app = express();
-app.set('view engine', 'ejs');
+const app = express().set('view engine', 'ejs');
 const COOKIE_SECRET = 'ypUdzfGTKRFJRveo8VaNsfH3xFVtlSU9WT9XLAXy';
 const PORT = 8080;
 
@@ -15,28 +16,6 @@ app.use(cookieSession({
   name: 'session',
   secret: COOKIE_SECRET
 }));
-
-// -----------------------------
-// The *airquotes* "Database"
-// -----------------------------
-
-const urlDatabaseObj = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: 'user2RandomID' },
-  "9sm5xK": { longURL: "http://www.google.com", userID: 'user2RandomID' },
-};
-
-const userDatabaseObj = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    hashedPass: bcrypt.hashSync("purple-monkey-dinosaur", 10)
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    hashedPass: bcrypt.hashSync("dishwasher-funk", 10)
-  }
-};
 
 // -----------------------------
 // GET Request Handlers
