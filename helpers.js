@@ -1,8 +1,11 @@
+// Generate alphanumeric string 8 characters long
 const generateRandomString = () => {
   return Math.random().toString(36).slice(2, 8);
 };
 
-
+// Search the provided database for 
+// an account with the provided email
+// and return the user data or undefined
 const findUserByEmail = (email, userDatabase) => {
   for (let userId in userDatabase) {
     if (userDatabase[userId].email === email) {
@@ -12,6 +15,8 @@ const findUserByEmail = (email, userDatabase) => {
   return undefined;
 };
 
+// Search through the provided database 
+// and return URLs owned by the userID provided
 const findURLsByUserID = (userID, urlDatabase) => {
   const URLs = {};
   for (let shortURL in urlDatabase) {

@@ -196,12 +196,15 @@ app.post("/login", (req, res) => {
   if (user) {
     return res.redirect('/urls');
   }
+  // Pull credentials from form data then search for account
   const { email, password } = req.body;
   const foundUser = findUserByEmail(email, userDatabaseObj);
   const templateVars = { user: undefined, alert: null };
+  // Validate required fields aren't empty & set alert values
   if (!email.length || !password.length) {
     templateVars.alert = { type: "danger", message: "Email and password are required" };
     return res.status(403).render('login', templateVars);
+    // Validate credentials & set alert values
   } else if (!foundUser || !bcrypt.compareSync(password, foundUser.hashedPass)) {
     templateVars.alert = { type: 'danger', message: 'Invalid credentials' };
     return res.status(403).render('login', templateVars);
@@ -215,12 +218,15 @@ app.post("/register", (req, res) => {
   let user = req.session.userID;
   if (user) user = userDatabaseObj[user];
   const templateVars = { user: user, alert: null };
+  // Validate password inputs match
   if (req.body.password !== req.body.password2) {
     templateVars.alert = { type: 'danger', message: "Passwords didn't match" };
     return res.status(400).render('register', templateVars);
+    // Validate required fields aren't empty
   } else if (!req.body.email.length || !req.body.password.length) {
     templateVars.alert = { type: 'danger', message: "Email and password are required" };
     return res.status(400).render('register', templateVars);
+    // Validate email isn't already registered
   } else if (findUserByEmail(req.body.email, userDatabaseObj)) {
     templateVars.alert = { type: 'danger', message: "Email already registered" };
     return res.status(400).render('register', templateVars);
