@@ -1,20 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-// const cookieSecret = require('./cookie-secret'); // Secret should be imported for security
-const cookieSecret = 'ypUdzfGTKRFJRveo8VaNsfH3xFVtlSU9WT9XLAXy';
 const bcrypt = require('bcryptjs');
 const { generateRandomString, findUserByEmail, findURLsByUserID } = require('./helpers');
 
 const app = express();
 app.set('view engine', 'ejs');
+const COOKIE_SECRET = 'ypUdzfGTKRFJRveo8VaNsfH3xFVtlSU9WT9XLAXy';
 const PORT = 8080;
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
-  secret: cookieSecret
+  secret: COOKIE_SECRET
 }));
 
 // -----------------------------
